@@ -1,0 +1,27 @@
+# Dependencies and build output
+node_modules/
+dist/
+release/
+.npm-cache/
+.electron-cache/
+native/**/.build/
+native/**/.cache/
+
+# Local Electron/browser profiles created by tests
+test/*-profile/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+secrets.json
+*.pem
+*.p12
+*.key
+*.crt
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp

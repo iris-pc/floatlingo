@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self';"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>浮译 FloatLingo</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app">
+      <div class="ambient ambient-a"></div>
+      <div class="ambient ambient-b"></div>
+
+      <header class="titlebar drag">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none">
+              <path d="M7 20.5c2.2 0 2.2-9 4.4-9s2.2 13 4.4 13 2.2-17 4.4-17 2.2 9 4.8 9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="brand-copy">
+            <strong>浮译</strong>
+            <span>FLOATLINGO</span>
+          </div>
+        </div>
+
+        <div id="statusPill" class="status-pill idle">
+          <span id="statusDot" class="status-dot"></span>
+          <span id="statusText">待命</span>
+        </div>
+
+        <div class="window-actions no-drag">
+          <button id="btnSettings" class="icon-btn" title="设置 (⌘,)" aria-label="设置">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-1.7 1.7-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V20h-2.4v-.1a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06-1.7-1.7.06-.06A1.7 1.7 0 0 0 8.4 15a1.7 1.7 0 0 0-1.56-1.03H6.7v-2.4h.14A1.7 1.7 0 0 0 8.4 10.5a1.7 1.7 0 0 0-.34-1.87L8 8.57l1.7-1.7.06.06a1.7 1.7 0 0 0 1.87.34 1.7 1.7 0 0 0 1.03-1.56V5.6h2.4v.11a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06 1.7 1.7-.06.06a1.7 1.7 0 0 0-.34 1.87 1.7 1.7 0 0 0 1.56 1.03H20v2.4h-.11A1.7 1.7 0 0 0 19.4 15Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="btnMinimize" class="icon-btn" title="最小化" aria-label="最小化">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <button id="btnClose" class="icon-btn close" title="隐藏浮窗 (⌘⇧T)" aria-label="隐藏浮窗">
+            <svg viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div id="permissionBanner" class="permission-banner hidden">
+        <div class="permission-icon">!</div>
+        <div class="permission-copy">
+          <strong id="permissionTitle">需要音频权限</strong>
+          <span id="permissionText">允许麦克风与系统音频后即可开始。</span>
+        </div>
+        <div class="permission-actions">
+          <button id="btnPermissionFix" class="mini-btn">去授权</button>
+          <button id="btnPermissionClose" class="mini-btn ghost">稍后</button>
+        </div>
+      </div>
+
+      <main class="stage">
+        <section id="emptyState" class="empty-state">
+          <div class="orb" aria-hidden="true">
+            <div class="orb-ring ring-1"></div>
+            <div class="orb-ring ring-2"></div>
+            <div class="orb-core">
+              <svg viewBox="0 0 48 48" fill="none">
+                <path d="M9 29c3.1 0 3.1-12 6.2-12s3.1 18 6.2 18 3.1-24 6.2-24 3.1 12 6.6 12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="eyebrow"><span class="live-dot"></span> LIVE INTERPRETER · KO</div>
+          <h1>让现场与设备里的声音<br /><em>实时变成韩语</em></h1>
+          <p class="lede">双路收音，边听边译。原文约 1 秒出现，韩语字幕持续跟随。</p>
+          <div class="empty-actions">
+            <button id="btnStart" class="primary-btn">
+              <span class="play-icon">▶</span>
+              开始实时翻译
+            </button>
+            <button id="btnDemo" class="secondary-btn">查看演示</button>
+          </div>
+          <div class="shortcut-hint">
+            <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>S</kbd> 开始 / 停止</span>
+            <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>T</kbd> 显示 / 隐藏</span>
+            <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>L</kbd> 点击穿透</span>
+            <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>M</kbd> 会议纪要</span>
+          </div>
+        </section>
+
+        <section id="captionList" class="caption-list" aria-live="polite"></section>
+
+        <div id="listening" class="listening hidden">
+          <span class="listening-wave"><i></i><i></i><i></i><i></i><i></i></span>
+          <span id="listeningText">正在聆听…</span>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="source-meters">
+          <div id="micMeter" class="source-meter">
+            <span class="source-dot mic"></span>
+            <span class="source-name">现场</span>
+            <span class="meter"><i></i></span>
+            <span id="micMeterState" class="source-state">—</span>
+          </div>
+          <div id="systemMeter" class="source-meter">
+            <span class="source-dot system"></span>
+            <span class="source-name">设备</span>
+            <span class="meter"><i></i></span>
+            <span id="systemMeterState" class="source-state">—</span>
+          </div>
+        </div>
+        <div class="footer-right">
+          <span id="providerBadge" class="provider-badge">DeepSeek · KO</span>
+          <span id="recognitionBadge" class="latency-badge">原文 —</span>
+          <span id="latencyBadge" class="latency-badge">译 —</span>
+          <button id="btnMinutes" class="stop-btn minutes hidden" title="生成会议纪要 (⌘⇧M)">纪要</button>
+          <button id="btnStartSmall" class="stop-btn start hidden">开始</button>
+          <button id="btnStop" class="stop-btn hidden">停止</button>
+        </div>
+      </footer>
+
+      <div id="clickThroughStrip" class="click-through-strip hidden">
+        <span>点击穿透中</span><kbd>⌘⇧L</kbd><span>恢复</span>
+      </div>
+
+      <section id="settingsPanel" class="settings-panel" aria-hidden="true">
+        <header class="settings-header drag">
+          <div>
+            <div class="settings-kicker">FLOATLINGO</div>
+            <h2>设置</h2>
+          </div>
+          <button id="settingsClose" class="icon-btn no-drag" aria-label="关闭设置">
+            <svg viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+
+        <div class="settings-body" id="settingsBody">
+          <section class="settings-section">
+            <div class="section-title">
+              <h3>API 连接</h3>
+              <span class="section-note">语音识别使用 OpenAI，翻译可用 DeepSeek 或 OpenAI</span>
+            </div>
+
+            <label class="field">
+              <span class="field-label">OpenAI API Key <em>语音识别必需</em></span>
+              <div class="input-wrap">
+                <input id="openaiKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-..." />
+                <button class="clear-key" data-clear-key="openai" type="button">清除</button>
+              </div>
+              <span id="openaiKeyState" class="field-hint">未设置</span>
+            </label>
+
+            <label class="field">
+              <span class="field-label">DeepSeek API Key <em>DeepSeek 翻译</em></span>
+              <div class="input-wrap">
+                <input id="deepseekKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-..." />
+                <button class="clear-key" data-clear-key="deepseek" type="button">清除</button>
+              </div>
+              <span id="deepseekKeyState" class="field-hint">未设置</span>
+            </label>
+
+            <div class="field">
+              <span class="field-label">翻译引擎</span>
+              <div class="segmented" id="providerSegmented">
+                <button data-provider="deepseek" type="button">DeepSeek</button>
+                <button data-provider="openai" type="button">OpenAI</button>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">DeepSeek 模型</span>
+                <input id="deepseekModel" type="text" spellcheck="false" />
+              </label>
+              <label class="field">
+                <span class="field-label">OpenAI 翻译模型</span>
+                <input id="openaiTranslationModel" type="text" spellcheck="false" />
+              </label>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title">
+              <h3>声音来源</h3>
+              <span class="section-note">双路独立识别，重叠说话也能分开处理</span>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-copy">
+                <strong>现场人声</strong>
+                <span>麦克风 · 已开启回声消除，避免把喇叭声重复识别</span>
+              </div>
+              <label class="switch"><input id="micEnabled" type="checkbox" /><span></span></label>
+            </div>
+
+            <div class="switch-row">
+              <div class="switch-copy">
+                <strong>设备声音</strong>
+                <span>系统音频 · 会议、视频、电话另一端的说话声</span>
+              </div>
+              <label class="switch"><input id="systemEnabled" type="checkbox" /><span></span></label>
+            </div>
+
+            <div class="field">
+              <span class="field-label">识别灵敏度 <b id="vadSensitivityValue">55%</b></span>
+              <input id="vadSensitivity" type="range" min="0" max="1" step="0.01" />
+              <span class="field-hint">环境嘈杂时降低；说话声轻时提高。</span>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">停顿断句 <b id="silenceMsValue">600ms</b></span>
+                <input id="silenceMs" type="range" min="300" max="1600" step="50" />
+              </label>
+              <label class="field">
+                <span class="field-label">最长片段 <b id="maxSegmentSecValue">12s</b></span>
+                <input id="maxSegmentSec" type="range" min="4" max="30" step="1" />
+              </label>
+            </div>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title">
+              <h3>识别</h3>
+              <span class="section-note">建议明确说话语言，准确率更高</span>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">说话语言</span>
+                <select id="sourceProfile"></select>
+              </label>
+              <label class="field">
+                <span class="field-label">识别延迟</span>
+                <select id="sttDelay">
+                  <option value="minimal">极速 · minimal</option>
+                  <option value="low">低延迟 · low</option>
+                  <option value="medium">均衡 · medium</option>
+                  <option value="high">高准确 · high</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field-label">转写提示词</span>
+              <textarea id="sttPrompt" rows="3" spellcheck="false"></textarea>
+            </label>
+
+            <label class="field">
+              <span class="field-label">术语 / 人名提示 <em>每行一个</em></span>
+              <textarea id="keywords" rows="3" spellcheck="false" placeholder="DeepSeek&#10;产品路线图&#10;Q3"></textarea>
+            </label>
+
+            <details class="advanced">
+              <summary>高级识别设置</summary>
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">识别模式</span>
+                  <select id="sttMode">
+                    <option value="realtime">实时流式（推荐）</option>
+                    <option value="http">标准分段（兼容性）</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field-label">实时模型</span>
+                  <input id="sttModel" type="text" spellcheck="false" />
+                </label>
+              </div>
+              <div class="field-grid">
+                <label class="field">
+                  <span class="field-label">标准模式模型</span>
+                  <input id="httpModel" type="text" spellcheck="false" />
+                </label>
+                <label class="field">
+                  <span class="field-label">OpenAI Base URL</span>
+                  <input id="openaiBaseUrl" type="text" spellcheck="false" />
+                </label>
+              </div>
+              <label class="field">
+                <span class="field-label">DeepSeek Base URL</span>
+                <input id="deepseekBaseUrl" type="text" spellcheck="false" />
+              </label>
+            </details>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title">
+              <h3>翻译</h3>
+              <span class="section-note">目标语言固定为 한국어（韩语）</span>
+            </div>
+            <label class="field">
+              <span class="field-label">术语表 <em>原文 = 韩语译法，每行一条</em></span>
+              <textarea id="glossary" rows="4" spellcheck="false" placeholder="DeepSeek = 딥시크&#10;产品路线图 = 제품 로드맵"></textarea>
+            </label>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title"><h3>外观与权限</h3></div>
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">浮窗不透明度 <b id="opacityValue">96%</b></span>
+                <input id="opacity" type="range" min="0.5" max="1" step="0.01" />
+              </label>
+              <label class="field">
+                <span class="field-label">字号 <b id="fontScaleValue">100%</b></span>
+                <input id="fontScale" type="range" min="0.8" max="1.5" step="0.05" />
+              </label>
+            </div>
+
+            <div class="switch-row compact">
+              <div class="switch-copy"><strong>始终置顶</strong><span>浮窗保持在所有窗口上方</span></div>
+              <label class="switch"><input id="alwaysOnTop" type="checkbox" /><span></span></label>
+            </div>
+            <div class="switch-row compact">
+              <div class="switch-copy"><strong>显示原文</strong><span>在韩语下方显示识别到的原句</span></div>
+              <label class="switch"><input id="showOriginal" type="checkbox" /><span></span></label>
+            </div>
+            <div class="switch-row compact">
+              <div class="switch-copy"><strong>点击穿透</strong><span>鼠标可穿过浮窗操作下方应用；用 ⌘⇧L 恢复</span></div>
+              <button id="clickThroughBtn" class="mini-btn" type="button">开启</button>
+            </div>
+
+            <div class="permission-grid">
+              <div class="permission-row">
+                <div><strong>麦克风</strong><span id="permissionMicState">检测中…</span></div>
+                <button class="mini-btn" data-open-permission="microphone" type="button">系统设置</button>
+              </div>
+              <div class="permission-row">
+                <div><strong>屏幕与系统音频</strong><span id="permissionScreenState">检测中…</span></div>
+                <div class="permission-actions-inline">
+                  <button class="mini-btn" data-reveal-helper type="button">组件位置</button>
+                  <button class="mini-btn" data-open-permission="screen" type="button">系统设置</button>
+                </div>
+              </div>
+            </div>
+            <p class="field-hint permission-hint">首次使用系统音频时，请在“屏幕与系统音频录制”中允许 <b>FloatLingo Audio</b>（不是只允许 FloatLingo 主程序）。</p>
+          </section>
+
+          <section class="settings-section">
+            <div class="section-title"><h3>记录</h3></div>
+            <div class="data-actions">
+              <button id="minutesBtnSettings" class="secondary-btn small" type="button">生成会议纪要</button>
+              <button id="exportBtn" class="secondary-btn small" type="button">导出双语记录</button>
+              <button id="clearBtn" class="secondary-btn small danger" type="button">清空当前记录</button>
+              <button id="logBtn" class="secondary-btn small" type="button">打开日志</button>
+            </div>
+            <p class="privacy-note">音频只实时发送给所选 API 用于识别与翻译，不在本机保存；关闭会话即停止上传。</p>
+          </section>
+        </div>
+
+        <footer class="settings-footer">
+          <span id="saveStatus" class="save-status">修改后需重新开始会话生效</span>
+          <button id="settingsSave" class="primary-btn small" type="button">保存设置</button>
+        </footer>
+      </section>
+
+      <section id="minutesPanel" class="minutes-panel" aria-hidden="true" role="dialog" aria-label="会议纪要">
+        <header class="minutes-header drag">
+          <div>
+            <div class="settings-kicker">MEETING NOTES</div>
+            <h2>会议纪要</h2>
+          </div>
+          <button id="minutesClose" class="icon-btn no-drag" aria-label="关闭会议纪要">
+            <svg viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+
+        <div class="minutes-toolbar">
+          <div class="minutes-tabs" id="minutesTabs">
+            <button data-minutes-tab="minutes" class="active" type="button">会议纪要</button>
+            <button data-minutes-tab="transcript" type="button">完整逐字稿</button>
+          </div>
+          <span id="minutesMeta" class="minutes-meta">—</span>
+        </div>
+
+        <div class="minutes-body">
+          <article id="minutesContent" class="minutes-content hidden"></article>
+          <pre id="minutesTranscript" class="minutes-transcript hidden" lang="zh"></pre>
+          <div id="minutesEmpty" class="minutes-empty">
+            <div class="minutes-empty-icon">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M14 7h14l7 7v27H14z" stroke="currentColor" stroke-width="2"/><path d="M27 7v8h8M20 24h12M20 30h12M20 36h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <h3 id="minutesEmptyTitle">整理成可追溯的会议纪要</h3>
+            <p id="minutesEmptyText">基于完整逐字记录生成，保留数字、负责人、决议和原话；正文中的 [Sxxx] 可在逐字稿中核对。</p>
+            <button id="minutesGenerate" class="primary-btn small" type="button">生成会议纪要</button>
+            <div id="minutesError" class="minutes-error hidden"></div>
+          </div>
+          <div id="minutesLoading" class="minutes-loading hidden">
+            <span class="minutes-spinner"></span>
+            <span id="minutesLoadingText">正在阅读完整逐字记录…</span>
+          </div>
+        </div>
+
+        <footer class="minutes-footer">
+          <span id="minutesStatus" class="minutes-status">保留实际内容 · 全程可核对</span>
+          <div class="minutes-actions">
+            <button id="minutesCopy" class="secondary-btn small" type="button" disabled>复制</button>
+            <button id="minutesExportMd" class="secondary-btn small" type="button" disabled>导出 MD</button>
+            <button id="minutesExportTxt" class="secondary-btn small" type="button" disabled>导出 TXT</button>
+            <button id="minutesRegenerate" class="secondary-btn small" type="button" disabled>重新生成</button>
+          </div>
+        </footer>
+      </section>
+
+      <div id="toastStack" class="toast-stack"></div>
+    </div>
+    <script type="module" src="./renderer.js"></script>
+  </body>
+</html>

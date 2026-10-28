@@ -1,0 +1,92 @@
+{
+  "name": "floatlingo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "浮译 FloatLingo — macOS 双路实时韩语翻译浮窗与保留实际内容的会议纪要",
+  "main": "electron/main.js",
+  "author": "FloatLingo",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "demo": "electron . --demo",
+    "build:helper": "bash native/SystemAudioCapture/build.sh",
+    "mock": "node scripts/mock-openai.js",
+    "test:unit": "node --test test/*.test.js",
+    "dist": "npm run build:helper && electron-builder --mac dir && bash scripts/sign-app.sh",
+    "dist:dmg": "npm run dist && electron-builder --mac dmg --prepackaged release/mac-arm64/FloatLingo.app",
+    "sign": "bash scripts/sign-app.sh"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "^26.18.0",
+    "playwright-core": "^1.64.1"
+  },
+  "build": {
+    "appId": "com.floatlingo.app",
+    "productName": "FloatLingo",
+    "copyright": "Copyright © 2026 FloatLingo",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/SystemAudioCapture.app",
+        "to": "SystemAudioCapture.app"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "浮译需要麦克风权限来识别现场人声并实时翻译。",
+        "NSAudioCaptureUsageDescription": "浮译需要系统音频权限来识别喇叭/会议中的人声并实时翻译。",
+        "NSScreenCaptureUsageDescription": "浮译使用屏幕录制权限仅用于捕获系统音频，不会上传或保存画面。",
+        "LSUIElement": false
+      },
+      "icon": "build/icon.png"
+    },
+    "dmg": {
+      "title": "FloatLingo ${version}",
+      "backgroundColor": "#0B0F14"
+    }
+  },
+  "homepage": "https://github.com/iris-pc/floatlingo#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iris-pc/floatlingo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iris-pc/floatlingo/issues"
+  },
+  "keywords": [
+    "macos",
+    "electron",
+    "realtime-translation",
+    "korean",
+    "openai",
+    "deepseek",
+    "speech-to-text",
+    "meeting-minutes"
+  ]
+}
