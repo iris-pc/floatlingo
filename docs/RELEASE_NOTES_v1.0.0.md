@@ -4,6 +4,10 @@
 
 第一个公开版本。双路捕获「现场麦克风」和「电脑系统音频」，实时识别原文并流式翻译成韩语；停止后可生成中文会议纪要，并保留完整逐字稿。
 
+![实时韩语字幕](https://raw.githubusercontent.com/iris-pc/floatlingo/main/docs/screenshot-live.png)
+
+![会议纪要](https://raw.githubusercontent.com/iris-pc/floatlingo/main/docs/screenshot-minutes.png)
+
 ## 下载
 
 - `FloatLingo-1.0.0-arm64.dmg` — Apple Silicon (arm64)，macOS 13+
